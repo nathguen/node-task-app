@@ -1,10 +1,11 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-const express = require("express");
-require("./db/mongoose");
+import express from "express";
+import "./db/mongoose";
 
-const User = require("./models/user");
-const Task = require("./models/task");
+import User from "./models/user";
+import Task from "./models/task";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -166,7 +167,5 @@ app.delete('/tasks/:id', async (req, res) => {
     res.status(500).send();
   }
 });
-
-app.get("/", (req, res) => res.type('html').send(html));
 
 app.listen(port, () => console.log(`Server is up on port ${port}!`));
