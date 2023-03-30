@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 import isEmail from "validator/lib/isEmail";
 
 interface UserDocument extends mongoose.Document {
@@ -9,7 +9,11 @@ interface UserDocument extends mongoose.Document {
   age: number;
 }
 
-const userSchema = new mongoose.Schema<UserDocument>({
+interface UserModel extends Model<UserDocument> {
+  findByCredentials(email: string, password: string): Promise<UserDocument | null>;
+}
+
+const userSchema = new mongoose.Schema<UserDocument, UserModel>({
   name: {
     type: String,
     required: true,
@@ -17,6 +21,7 @@ const userSchema = new mongoose.Schema<UserDocument>({
   },
   email: {
     type: String,
+    unique: true,
     required: true,
     trim: true,
     lowercase: true,
@@ -58,13 +63,28 @@ const userSchema = new mongoose.Schema<UserDocument>({
 });
 
 
+userSchema.statics.findByCredentials = async (email: string, password: string) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error("Unable to login");
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new Error("Unable to login");
+  }
+
+  return user;
+};
+
+
 userSchema.pre("save", async function (next) {
   const user = this;
 
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 8);
   }
-  
+
   next();
 });
 

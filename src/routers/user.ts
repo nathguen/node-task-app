@@ -16,6 +16,21 @@ router.post('/users', async (req, res) => {
   }
 });
 
+router.post('/users/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    // @ts-ignore
+    const user = await User.findByCredentials(email, password);
+    res.send(user);
+
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).send({ error: error.message });
+    }
+    res.status(500).send();
+  }
+});
+
 
 router.patch('/users/:id', async (req, res) => {
   try {
