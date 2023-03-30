@@ -33,7 +33,7 @@ app.post('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(400).send(error);
     }
 }));
-app.get('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get('/usersss', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield user_1.default.find({});
         res.send(users);

@@ -13,7 +13,6 @@ const port = process.env.PORT || 3000;
 // parses incoming requests with JSON payloads
 app.use(express.json());
 
-
 app.post('/users', async (req, res) => {
   try {
     const user = new User(req.body);
@@ -26,7 +25,7 @@ app.post('/users', async (req, res) => {
   }
 });
 
-app.get('/users', async (req, res) => {
+app.get('/usersss', async (req, res) => {
   try {
     const users = await User.find({});
     res.send(users);
