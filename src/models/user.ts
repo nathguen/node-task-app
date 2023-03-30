@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import mongoose, { Model } from "mongoose";
 import isEmail from "validator/lib/isEmail";
 import jwt from "jsonwebtoken";
+import Task from "./task";
 
 interface UserDocument extends mongoose.Document {
   name: string;
@@ -72,6 +73,16 @@ const userSchema = new mongoose.Schema<UserDocument, UserModel>({
 
 
 /**
+ * VIRTUAL PROPERTIES
+ */
+userSchema.virtual("tasks", {
+  ref: "Task",
+  localField: "_id",
+  foreignField: "owner",
+});
+
+
+/**
  * METHODS for instances of User (e.g., user)
  */
 
@@ -96,7 +107,6 @@ userSchema.methods.toJSON = function () {
   return userObject;
 };
 
-
 // adds a method to the User model
 userSchema.statics.findByCredentials = async (email: string, password: string) => {
   const user = await User.findOne({ email });
@@ -111,6 +121,18 @@ userSchema.statics.findByCredentials = async (email: string, password: string) =
 
   return user;
 };
+
+
+// Delete user tasks when user is removed
+userSchema.pre("deleteOne", { document: true }, async function (next) {
+  const user = this;
+
+  // @ts-ignore
+  const _id = user._id;
+
+  await Task.deleteMany({ owner: _id });
+  next();
+});
 
 
 userSchema.pre("save", async function (next) {

@@ -3,6 +3,7 @@ import mongoose, { Schema } from "mongoose";
 interface TaskDocument extends mongoose.Document {
   description: string;
   completed: boolean;
+  owner: mongoose.Schema.Types.ObjectId;
 }
 
 const taskSchema = new Schema<TaskDocument>({
@@ -14,6 +15,11 @@ const taskSchema = new Schema<TaskDocument>({
   completed: {
     type: Boolean,
     default: false,
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "User",
   },
 });
 

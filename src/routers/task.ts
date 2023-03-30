@@ -6,7 +6,10 @@ const router = express.Router({ mergeParams: true, strict: true, caseSensitive: 
 
 router.post('/tasks', auth, async (req, res) => {
   try {
-    const task = new Task(req.body);
+    const task = new Task({
+      ...req.body,
+      owner: req.user?._id,
+    });
     const result = await task.save();
     res.status(201).send(result);
 
@@ -18,7 +21,7 @@ router.post('/tasks', auth, async (req, res) => {
 
 router.get('/tasks', auth, async (req, res) => {
   try {
-    const tasks = await Task.find({});
+    const tasks = await Task.find({ owner: req.user?._id });
     res.send(tasks);
   } catch (error) {
     res.status(500).send();
@@ -28,7 +31,7 @@ router.get('/tasks', auth, async (req, res) => {
 router.get('/tasks/:id', auth, async (req, res) => {
   try {
     const _id = req.params.id;
-    const task = await Task.findById(_id);
+    const task = await Task.findOne({ _id, owner: req.user?._id });
     
     if (!task) {
       return res.status(404).send();
@@ -52,13 +55,16 @@ router.patch('/tasks/:id', auth, async (req, res) => {
       return res.status(400).send({ error: 'Invalid updates!', invalidFields });
     }
 
-    const updatedTask = await Task.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true });
-
-    if (!updatedTask) {
+    const task = await Task.findOne({ _id, owner: req.user?._id });
+    if (!task) {
       return res.status(404).send();
     }
 
-    res.send(updatedTask);
+    // update each field on task
+    // @ts-ignore
+    updates.forEach((update) => task[update] = req.body[update]);
+    await task.save();
+    res.send(task);
 
   } catch (error) {
     res.status(500).send();
@@ -68,7 +74,7 @@ router.patch('/tasks/:id', auth, async (req, res) => {
 router.delete('/tasks/:id', auth, async (req, res) => {
   try {
     const _id = req.params.id;
-    const deletedTask = await Task.findByIdAndDelete(_id);
+    const deletedTask = await Task.findOneAndDelete({ _id, owner: req.user?._id });
 
     if (!deletedTask) {
       return res.status(404).send();
