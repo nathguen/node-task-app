@@ -1,12 +1,14 @@
 import bcrypt from "bcrypt";
 import mongoose, { Model } from "mongoose";
 import isEmail from "validator/lib/isEmail";
+import jwt from "jsonwebtoken";
 
 interface UserDocument extends mongoose.Document {
   name: string;
   email: string;
   password: string;
   age: number;
+  tokens: { token: string }[];
 }
 
 interface UserModel extends Model<UserDocument> {
@@ -60,9 +62,28 @@ const userSchema = new mongoose.Schema<UserDocument, UserModel>({
       },
     },
   },
+  tokens: [{
+    token: {
+      type: String,
+      required: true,
+    },
+  }] 
 });
 
 
+// adds a method the user instance
+userSchema.methods.generateAuthToken = async function () {
+  const user = this;
+  const token = jwt.sign({ _id: user._id.toString(), }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
+
+  user.tokens = user.tokens.concat({ token });
+  await user.save();
+
+  return token;
+};
+
+
+// adds a method to the User model
 userSchema.statics.findByCredentials = async (email: string, password: string) => {
   const user = await User.findOne({ email });
   if (!user) {

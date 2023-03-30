@@ -8,7 +8,9 @@ router.post('/users', async (req, res) => {
   try {
     const user = new User(req.body);
     const result = await user.save();
-    res.status(201).send(result);
+    // @ts-ignore
+    const token = user.generateAuthToken();
+    res.status(201).send({ user: result, token });
     
   } catch (error) {
     // 400 is a bad request
@@ -16,12 +18,15 @@ router.post('/users', async (req, res) => {
   }
 });
 
+
 router.post('/users/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     // @ts-ignore
     const user = await User.findByCredentials(email, password);
-    res.send(user);
+
+    const token = await user.generateAuthToken();
+    res.send({ user, token });
 
   } catch (error) {
     if (error instanceof Error) {
