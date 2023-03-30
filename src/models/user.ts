@@ -71,7 +71,10 @@ const userSchema = new mongoose.Schema<UserDocument, UserModel>({
 });
 
 
-// adds a method the user instance
+/**
+ * METHODS for instances of User (e.g., user)
+ */
+
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
   const token = jwt.sign({ _id: user._id.toString(), }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
@@ -80,6 +83,17 @@ userSchema.methods.generateAuthToken = async function () {
   await user.save();
 
   return token;
+};
+
+// overrides the default toJSON method to remove the password and tokens
+userSchema.methods.toJSON = function () {
+  const user = this;
+  const userObject = user.toObject();
+
+  delete userObject.password;
+  delete userObject.tokens;
+
+  return userObject;
 };
 
 
