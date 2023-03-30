@@ -1,6 +1,6 @@
-import bcrypt from "bcrypt";
 import express from "express";
 import User from "../models/user";
+import auth from "../middleware/auth";
 
 const router = express.Router({ mergeParams: true, strict: true, caseSensitive: true, });
 
@@ -37,7 +37,7 @@ router.post('/users/login', async (req, res) => {
 });
 
 
-router.patch('/users/:id', async (req, res) => {
+router.patch('/users/:id', auth, async (req, res) => {
   try {
     const _id = req.params.id;
     const updates = Object.keys(req.body);
@@ -66,16 +66,15 @@ router.patch('/users/:id', async (req, res) => {
   }
 });
 
-router.get('/users', async (req, res) => {
+router.get('/users/me', auth, async (req, res) => {
   try {
-    const users = await User.find({});
-    res.send(users);
+    res.send(req.user);
   } catch (error) {
     res.status(500).send();
   }
 });
 
-router.get('/users/:id', async (req, res) => {
+router.get('/users/:id', auth, async (req, res) => {
   try {
     const _id = req.params.id;
     const user = await User.findById(_id);
@@ -91,7 +90,7 @@ router.get('/users/:id', async (req, res) => {
 });
 
 
-router.delete('/users/:id', async (req, res) => {
+router.delete('/users/:id', auth, async (req, res) => {
   try {
     const _id = req.params.id;
     const deletedUser = await User.findByIdAndDelete(_id);
@@ -102,6 +101,34 @@ router.delete('/users/:id', async (req, res) => {
 
     res.send(deletedUser);
 
+  } catch (error) {
+    res.status(500).send();
+  }
+});
+
+router.post('/users/logout', auth, async (req, res) => {
+  try {
+    if (!req.user || !req.token || !req.user.tokens) {
+      return res.status(401).send();
+    }
+
+    req.user.tokens = req.user.tokens.filter((token) => token.token !== req.token);
+    await req.user.save();
+    res.send();
+  } catch (error) {
+    res.status(500).send();
+  }
+});
+
+router.post('/users/logoutAll', auth, async (req, res) => {
+  try {
+    if (!req.user || !req.user.tokens) {
+      return res.status(401).send();
+    }
+
+    req.user.tokens = [];
+    await req.user.save();
+    res.send();
   } catch (error) {
     res.status(500).send();
   }

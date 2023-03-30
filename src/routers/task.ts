@@ -1,9 +1,10 @@
 import express from "express";
+import auth from "../middleware/auth";
 import Task from "../models/task";
 
 const router = express.Router({ mergeParams: true, strict: true, caseSensitive: true, });
 
-router.post('/tasks', async (req, res) => {
+router.post('/tasks', auth, async (req, res) => {
   try {
     const task = new Task(req.body);
     const result = await task.save();
@@ -15,7 +16,7 @@ router.post('/tasks', async (req, res) => {
   }
 });
 
-router.get('/tasks', async (req, res) => {
+router.get('/tasks', auth, async (req, res) => {
   try {
     const tasks = await Task.find({});
     res.send(tasks);
@@ -24,7 +25,7 @@ router.get('/tasks', async (req, res) => {
   }
 });
 
-router.get('/tasks/:id', async (req, res) => {
+router.get('/tasks/:id', auth, async (req, res) => {
   try {
     const _id = req.params.id;
     const task = await Task.findById(_id);
@@ -39,7 +40,7 @@ router.get('/tasks/:id', async (req, res) => {
   }
 });
 
-router.patch('/tasks/:id', async (req, res) => {
+router.patch('/tasks/:id', auth, async (req, res) => {
   try {
     const _id = req.params.id;
     const updates = Object.keys(req.body);
@@ -64,7 +65,7 @@ router.patch('/tasks/:id', async (req, res) => {
   }
 });
 
-router.delete('/tasks/:id', async (req, res) => {
+router.delete('/tasks/:id', auth, async (req, res) => {
   try {
     const _id = req.params.id;
     const deletedTask = await Task.findByIdAndDelete(_id);
