@@ -3,14 +3,7 @@ import mongoose, { Model } from "mongoose";
 import isEmail from "validator/lib/isEmail";
 import jwt from "jsonwebtoken";
 import Task from "./task";
-
-interface UserDocument extends mongoose.Document {
-  name: string;
-  email: string;
-  password: string;
-  age: number;
-  tokens: { token: string }[];
-}
+import { UserDocument } from "../types/user";
 
 interface UserModel extends Model<UserDocument> {
   findByCredentials(email: string, password: string): Promise<UserDocument | null>;
@@ -68,7 +61,10 @@ const userSchema = new mongoose.Schema<UserDocument, UserModel>({
       type: String,
       required: true,
     },
-  }]
+  }],
+  avatar: {
+    type: Buffer,
+  },
 }, {
   timestamps: true,
 });
@@ -105,6 +101,7 @@ userSchema.methods.toJSON = function () {
 
   delete userObject.password;
   delete userObject.tokens;
+  delete userObject.avatar;
 
   return userObject;
 };

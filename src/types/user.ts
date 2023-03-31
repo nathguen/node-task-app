@@ -9,4 +9,5 @@ export interface UserDocument extends mongoose.Document {
   generateAuthToken(): Promise<string>;
   // tasks only used for mongoose queries
   tasks?: mongoose.Schema.Types.ObjectId[];
+  avatar?: Buffer;
 }
