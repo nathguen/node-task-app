@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-interface TaskDocument extends mongoose.Document {
+export interface TaskDocument extends mongoose.Document {
   description: string;
   completed: boolean;
   owner: mongoose.Schema.Types.ObjectId;
@@ -21,6 +21,8 @@ const taskSchema = new Schema<TaskDocument>({
     required: true,
     ref: "User",
   },
+}, {
+  timestamps: true,
 });
 
 const Task = mongoose.model<TaskDocument>("Task", taskSchema);

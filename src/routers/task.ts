@@ -1,6 +1,7 @@
 import express from "express";
+import { Query, QueryOptions } from "mongoose";
 import auth from "../middleware/auth";
-import Task from "../models/task";
+import Task, { TaskDocument } from "../models/task";
 
 const router = express.Router({ mergeParams: true, strict: true, caseSensitive: true, });
 
@@ -19,10 +20,41 @@ router.post('/tasks', auth, async (req, res) => {
   }
 });
 
+// GET /tasks?completed=true
+// GET /tasks?limit=10&skip=0
+// GET /tasks?sortBy=[field]:desc
+// GET /tasks?sortBy=[field]:asc
 router.get('/tasks', auth, async (req, res) => {
+  const match: any = {};
+  const options: QueryOptions<unknown> = {};
+
+  if (req.query.completed) {
+    match.completed = req.query.completed === 'true';
+  }
+
+  if (req.query.limit) {
+    options.limit = parseInt(req.query.limit as string);
+  }
+
+  if (req.query.skip) {
+    options.skip = parseInt(req.query.skip as string);
+  }
+
+  if (req.query.sortBy) {
+    const parts = (req.query.sortBy as string).split(':');
+    options.sort = {
+      [parts[0]]: parts[1] === 'desc' ? -1 : 1,
+    };
+  }
+
+
   try {
-    const tasks = await Task.find({ owner: req.user?._id });
-    res.send(tasks);
+    await req.user?.populate({
+      path: 'tasks',
+      match,
+      options,
+    });
+    res.send(req.user?.tasks);
   } catch (error) {
     res.status(500).send();
   }

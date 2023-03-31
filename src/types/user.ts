@@ -6,4 +6,7 @@ export interface UserDocument extends mongoose.Document {
   password: string;
   age: number;
   tokens: { token: string }[];
+  generateAuthToken(): Promise<string>;
+  // tasks only used for mongoose queries
+  tasks?: mongoose.Schema.Types.ObjectId[];
 }

@@ -68,7 +68,9 @@ const userSchema = new mongoose.Schema<UserDocument, UserModel>({
       type: String,
       required: true,
     },
-  }] 
+  }]
+}, {
+  timestamps: true,
 });
 
 
