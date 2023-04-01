@@ -8,7 +8,7 @@ import userRouter from "./routers/user";
 import taskRouter from "./routers/task";
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 
 // parses incoming requests with JSON payloads

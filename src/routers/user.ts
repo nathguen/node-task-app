@@ -4,6 +4,7 @@ import multer from "multer";
 import express, { NextFunction, Request, Response } from "express";
 import User from "../models/user";
 import auth from "../middleware/auth";
+import { sendCancelationEmail, sendWelcomeEmail } from "../emails/account"
 
 const router = express.Router({ mergeParams: true, strict: true, caseSensitive: true, });
 
@@ -13,6 +14,9 @@ router.post('/users', async (req, res) => {
     const result = await user.save();
     // @ts-ignore
     const token = user.generateAuthToken();
+
+    sendWelcomeEmail(user.email, user.name);
+
     res.status(201).send({ user: result, token });
 
   } catch (error) {
@@ -85,8 +89,9 @@ router.delete('/users/me', auth, async (req, res) => {
     }
 
     await req.user.deleteOne();
-    res.send(req.user);
+    sendCancelationEmail(req.user.email, req.user.name);
 
+    res.send(req.user);
   } catch (error) {
     res.status(500).send();
   }
