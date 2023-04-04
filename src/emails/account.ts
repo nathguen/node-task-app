@@ -6,8 +6,6 @@ const fromEmail = process.env.FROM_EMAIL as string;
 sgMail.setApiKey(sendGridAPIKey);
 
 export const sendWelcomeEmail = (email: string, name: string) => {
-  if (process.env.NODE_ENV === 'test') return Promise.resolve();
-
   sgMail.send({
     to: email,
     from: fromEmail,

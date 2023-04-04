@@ -1,32 +1,15 @@
-import { beforeEach, afterEach, jest, test, expect } from '@jest/globals';
+import { beforeEach, expect, test } from '@jest/globals';
+import sendgrid from '@sendgrid/mail';
 import request from 'supertest';
-import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
 
 import app from '../src/app';
 import User from '../src/models/user';
-import { User as IUser, UserDocument } from '../src/types/user';
+import { User as IUser } from '../src/types/user';
+import { setupDatabase, userTwoToken, userTwo, userTwoId } from './fixtures/db';
 
 
-const userOneId = new mongoose.Types.ObjectId();
-const token = jwt.sign({ _id: userOneId }, process.env.JWT_SECRET as string);
-const userOne: UserDocument = {
-  _id: userOneId,
-  name: 'Mike',
-  email: 'mike@test.com',
-  password: 'MyPass777!',
-  age: 21,
-  tokens: [{
-    token,
-  }]
-} as UserDocument;
 
-beforeEach(async () => {
-  // reset the DB
-  await User.deleteMany({});
-  // establish a base user
-  await new User(userOne).save();
-});
+beforeEach(setupDatabase);
 
 test('Should sign up a new user', async () => {
   const user: IUser = {
@@ -56,22 +39,25 @@ test('Should sign up a new user', async () => {
 
   // Assert that the password is not stored as plain text
   expect(savedUser?.password).not.toBe(user.password);
+
+  // Assert that the email was sent
+  expect(sendgrid.send).toHaveBeenCalled();
 });
 
 test('Should login existing user', async () => {
   const resp = await request(app)
     .post('/users/login')
     .send({
-      email: userOne.email,
-      password: userOne.password,
+      email: userTwo.email,
+      password: userTwo.password,
     })
     .expect(200);
 
   expect(resp.body).toMatchObject({
     user: {
-      name: userOne.name,
-      email: userOne.email,
-      age: userOne.age,
+      name: userTwo.name,
+      email: userTwo.email,
+      age: userTwo.age,
     },
   });
 
@@ -82,7 +68,7 @@ test('Should not login nonexistent user', async () => {
   await request(app)
     .post('/users/login')
     .send({
-      email: userOne.email,
+      email: userTwo.email,
       password: 'wrongPassword',
     })
     .expect(400);
@@ -91,7 +77,7 @@ test('Should not login nonexistent user', async () => {
 test('Should get profile for user', async () => {
   await request(app)
     .get('/users/me')
-    .set('Authorization', `Bearer ${token}`)
+    .set('Authorization', `Bearer ${userTwoToken}`)
     .send()
     .expect(200);
 });
@@ -106,13 +92,16 @@ test('Should not get profile for unauthenticated user', async () => {
 test('Should delete account for user', async () => {
   await request(app)
     .delete('/users/me')
-    .set('Authorization', `Bearer ${token}`)
+    .set('Authorization', `Bearer ${userTwoToken}`)
     .send()
     .expect(200);
 
   // Assert that user no longer exists
-  const user = await User.findOne({ email: userOne.email });
+  const user = await User.findOne({ email: userTwo.email });
   expect(user).toBeNull();
+
+  // Assert that the email was sent
+  expect(sendgrid.send).toHaveBeenCalled();
 });
 
 test('Should not delete account for unauthenticated user', async () => {
@@ -120,4 +109,42 @@ test('Should not delete account for unauthenticated user', async () => {
     .delete('/users/me')
     .send()
     .expect(401);
+});
+
+test('Should upload avatar image', async () => {
+  await request(app)
+    .post('/users/me/avatar')
+    .set('Authorization', `Bearer ${userTwoToken}`)
+    .attach('avatar', 'tests/fixtures/profile-pic.jpg')
+    .expect(201);
+
+  const user = await User.findById(userTwoId);
+  expect(user?.avatar).toEqual(expect.any(Buffer));
+});
+
+test('Should update valid user fields', async () => {
+  const resp = await request(app)
+    .patch('/users/me')
+    .set('Authorization', `Bearer ${userTwoToken}`)
+    .send({
+      name: 'Nate',
+      age: 42,
+    })
+    .expect(200);
+
+  // Assert that the user was updated correctly
+  expect(resp.body).toMatchObject({
+    name: 'Nate',
+    age: 42,
+  });
+});
+
+test('Should not update invalid user fields', async () => {
+  await request(app)
+    .patch('/users/me')
+    .set('Authorization', `Bearer ${userTwoToken}`)
+    .send({
+      location: 'New York',
+    })
+    .expect(400);
 });

@@ -1,7 +1,7 @@
 import express from "express";
-import { Query, QueryOptions } from "mongoose";
+import { QueryOptions } from "mongoose";
 import auth from "../middleware/auth";
-import Task, { TaskDocument } from "../models/task";
+import Task from "../models/task";
 
 const router = express.Router({ mergeParams: true, strict: true, caseSensitive: true, });
 
@@ -112,7 +112,7 @@ router.delete('/tasks/:id', auth, async (req, res) => {
       return res.status(404).send();
     }
 
-    res.send(deletedTask);
+    res.status(204).send(deletedTask);
   } catch (error) {
     res.status(500).send();
   }
