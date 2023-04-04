@@ -1,0 +1,443 @@
+{
+	"info": {
+		"_postman_id": "198e014d-5ff8-476d-9903-d5eeaf6639c1",
+		"name": "Tasks Manager",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "344828"
+	},
+	"item": [
+		{
+			"name": "Create User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    pm.environment.set('token', pm.response.json().token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Nate\",\n    \"age\": 20,\n    \"email\": \"nathan@test.com\",\n    \"password\": \"b877sdfd\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/users",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Mike\",\n    \"age\": 44,\n    \"password\": \"b877sdfd\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/users/me",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Task",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"description\": \"Get groceries\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/tasks",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Task",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"completed\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/tasks/6425fdf706b9032fe788b985",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"tasks",
+						"6425fdf706b9032fe788b985"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Profile",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/users/me",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Tasks",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/tasks?sortBy=description:asc",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"tasks"
+					],
+					"query": [
+						{
+							"key": "sortBy",
+							"value": "description:asc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/users/6424fe6c6d54216835a911a1",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"6424fe6c6d54216835a911a1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Task by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/tasks/6425f3c8035e011b057c82a9",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"tasks",
+						"6425f3c8035e011b057c82a9"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/users/me",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Task",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/tasks/6425fdf706b9032fe788b985",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"tasks",
+						"6425fdf706b9032fe788b985"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    pm.environment.set('token', pm.response.json().token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"nathan@test.com\",\n    \"password\": \"b877sdfd\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/users/login",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/users/logout",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout All Sessions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/users/logoutAll",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"logoutAll"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Avatar",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/users/me/avatar",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"me",
+						"avatar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Avatar",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "avatar",
+							"type": "file",
+							"src": "/Users/nathanguenther/Downloads/node-course-images/profile-pic.jpg"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/users/me/avatar",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"me",
+						"avatar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Avatar",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/users/642605a538a965f1680a446a/avatar",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"642605a538a965f1680a446a",
+						"avatar"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
