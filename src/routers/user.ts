@@ -12,8 +12,7 @@ router.post('/users', async (req, res) => {
   try {
     const user = new User(req.body);
     const result = await user.save();
-    // @ts-ignore
-    const token = user.generateAuthToken();
+    const token = await user.generateAuthToken();
 
     sendWelcomeEmail(user.email, user.name);
 
